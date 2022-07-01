@@ -20,14 +20,14 @@ class DbHandler(
 
     override fun onCreate(db: SQLiteDatabase?) {
         val createQuery = "CREATE TABLE IF NOT EXISTS $TABLE (" +
-                "id INT NOT NULL PRIMARY KEY AUTOINCREMENT, "+
+                "id INTEGER PRIMARY KEY AUTOINCREMENT, "+
                 "title TEXT, "+
                 "pages INTEGER)"
         db?.execSQL(createQuery)
     }
 
     override fun onUpgrade(p0: SQLiteDatabase?, p1: Int, p2: Int) {
-        TODO("Not yet implemented")
+
     }
 
     fun addBook( book: Book): Boolean{
@@ -62,7 +62,7 @@ class DbHandler(
     fun getBooks() : ArrayList<Book>{
         var books = ArrayList<Book>()
         var db = this.readableDatabase
-        val query = "SELECT * FROM $TABLE ORDER BY titulo"
+        val query = "SELECT * FROM $TABLE ORDER BY title"
         val cursor = db.rawQuery(query, null)
         if (cursor != null){
             if(cursor.count > 0){
@@ -73,11 +73,29 @@ class DbHandler(
                     val title = cursor.getString(1)
                     val pages = cursor.getInt(2)
                     val book = Book(id, title, pages)
-
+                    books.add(book)
                 } while(cursor.moveToNext())
             }
         }
 
         return books
+    }
+
+    fun getBookById(idBook: Int) : Book?{
+        var db = this.readableDatabase
+        var book: Book
+        val query = "SELECT * FROM $TABLE WHERE id = $idBook ORDER BY title"
+        val cursor = db.rawQuery(query, null)
+        if (cursor != null){
+            if(cursor.count > 0){
+                cursor.moveToFirst()
+                val id = cursor.getInt(0)
+                val title = cursor.getString(1)
+                val pages = cursor.getInt(2)
+                val book = Book(id, title, pages)
+                return book
+            }
+        }
+        return null
     }
 }

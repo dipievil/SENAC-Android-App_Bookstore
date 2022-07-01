@@ -8,6 +8,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import br.dipievil.appbookstore.R
 import br.dipievil.appbookstore.adapter.ListAdapter
 import br.dipievil.appbookstore.databinding.ActivityMainBinding
@@ -18,12 +19,12 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
+    private lateinit var rvBooks : RecyclerView
 
     var listAdapter : ListAdapter? = null
     var linearLayoutManager : LinearLayoutManager? = null
 
     var books: List<Book> = ArrayList<Book>()
-    var dbHandler = DbHandler(this, null)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,14 +33,15 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         setSupportActionBar(binding.toolbar)
+
+        rvBooks = findViewById(R.id.rvBooks)
+
 /*
         val navController = findNavController(R.id.nav_host_fragment_content_main)
         appBarConfiguration = AppBarConfiguration(navController.graph)
         setupActionBarWithNavController(navController, appBarConfiguration)
 */
         binding.fab.setOnClickListener { view ->
-           // Snackbar.make(view, "Olá tchê!", Snackbar.LENGTH_LONG)
-           //     .setAction("Action", null).show()
             val intent = Intent(this, FormActivity::class.java)
             intent.putExtra("action","inserir")
             startActivity(intent);
@@ -65,11 +67,29 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        val databaseHandler = DbHandler(this, null)
-        val cont = databaseHandler.getBooks().size
+        val dbHandler = DbHandler(this, null)
+        books = dbHandler.getBooks()
 
-        Toast.makeText(this, "Total de livros: $cont",
-         Toast.LENGTH_LONG).show()
+        listAdapter = ListAdapter(books,this) { position, action ->
+            if(action.equals("editar")){
+                var intent = Intent(this, FormActivity::class.java)
+                intent.putExtra("action","editar")
+                intent.putExtra("idBook", books[position].id)
+                startActivity(intent)
+            } else {
+                //deletar
+                if(dbHandler.deleteBook(books[position].id)){
+                    books = dbHandler.getBooks()
+                    listAdapter.notifyDataSetChanged()
+                }
+            }
+        }
+        linearLayoutManager = LinearLayoutManager(this)
+        rvBooks.layoutManager = linearLayoutManager
+        rvBooks.adapter = listAdapter
+
+        //Toast.makeText(this, "Total de livros: $cont",
+        // Toast.LENGTH_LONG).show()
     }
 
     override fun onSupportNavigateUp(): Boolean {

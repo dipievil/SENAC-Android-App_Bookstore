@@ -29,8 +29,20 @@ class FormActivity : AppCompatActivity() {
         if( action.equals("inserir")){
             book = Book()
         } else {
+            val idBook = intent.getIntExtra("idBook",0)
             //Get the book!
+            book = DbHandler(this,null).getBookById(idBook)
+            if(book == null){
+                finish()
+            } else {
+              loadForm()
+            }
         }
+    }
+
+    fun loadForm(){
+        etTitle.setText(book?.title)
+        etPages.setText(book?.pages.toString())
     }
 
     fun save(view: View){
@@ -47,9 +59,8 @@ class FormActivity : AppCompatActivity() {
             dbHandler.addBook(book!!)
             etTitle.text.clear()
             etPages.text.clear()
-
         } else {
-            dbHandler.addBook(book!!)
+            dbHandler.updateBook(book!!)
             finish()
         }
     }
