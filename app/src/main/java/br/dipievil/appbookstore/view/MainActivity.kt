@@ -80,7 +80,7 @@ class MainActivity : AppCompatActivity() {
                 //deletar
                 if(dbHandler.deleteBook(books[position].id)){
                     books = dbHandler.getBooks()
-                    listAdapter.notifyDataSetChanged()
+                    listAdapter?.notifyDataSetChanged()
                 }
             }
         }

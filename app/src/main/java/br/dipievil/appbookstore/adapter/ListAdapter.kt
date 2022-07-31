@@ -44,9 +44,9 @@ class ListAdapter(private val books: List<Book>, internal val context: Context,
            this.callbacks(position,"editar")
         }
 
-        holder.layout.setOnLongClickListener {
-            this.callbacks(position,"deletar")
-        }
+        //holder.layout.setOnLongClickListener {
+           // this.callbacks(position,"deletar")
+        //}
     }
 
     override fun getItemCount(): Int {
